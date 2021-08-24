@@ -1,0 +1,3 @@
+include ':zxing-android-embedded'
+include ':app'
+rootProject.name = "Sersa_Tracking"

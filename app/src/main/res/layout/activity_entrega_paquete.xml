@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".entrega_paquete">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/buttonsLayout"
+        android:layout_margin="2dp"
+        android:layout_toLeftOf="@+id/centerHorizont"
+        tools:ignore="MissingConstraints">
+
+
+        <EditText
+            android:id="@+id/identificacion"
+            android:layout_height="40dp"
+            android:layout_width="match_parent"
+            android:layout_margin="10dp"
+            android:layout_marginStart="8dp"
+            android:hint="Identificación"
+            android:layout_marginRight="8dp"
+            android:background="@color/colordropdown"
+            android:inputType="text"
+
+            />
+
+        <EditText
+            android:id="@+id/recibido"
+            android:layout_height="40dp"
+            android:layout_width="match_parent"
+            android:layout_margin="10dp"
+            android:hint="Recibido por..."
+            android:background="@color/colordropdown"
+            android:inputType="text"
+           />
+
+        <EditText
+            android:id="@+id/paquete"
+            android:layout_height="40dp"
+            android:layout_width="match_parent"
+            android:layout_margin="10dp"
+            android:hint="Codigo del paquete"
+            android:background="@color/colordropdown"
+            android:inputType="text"
+            />
+
+
+
+        <Spinner
+            android:id="@+id/spinner1"
+            style="@style/Widget.AppCompat.Spinner"
+            android:layout_width="match_parent"
+            android:layout_marginRight="8dp"
+            android:layout_height="?attr/dropdownListPreferredItemHeight"
+            android:layout_margin="10dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginEnd="8dp"
+            android:background="@drawable/spinner_bg"
+            android:dropDownWidth="300dp"
+            android:dropDownVerticalOffset="?attr/dropdownListPreferredItemHeight"
+            android:paddingRight="14dp"
+            android:popupBackground="@android:color/white"
+            android:popupElevation="3dp"
+            android:stateListAnimator="@drawable/spinner_sla"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+
+
+
+        <EditText
+            android:id="@+id/comentarios"
+            android:layout_height="50dp"
+            android:layout_width="match_parent"
+            android:layout_marginRight="8dp"
+            android:layout_margin="10dp"
+            android:hint="Comentarios"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:background="@color/colordropdown"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:inputType="textMultiLine"
+            android:gravity="top"/>
+
+        <Button
+            android:id="@+id/siguiente"
+            android:layout_width="match_parent"
+            android:layout_height="35dp"
+            android:textSize="10dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
+            android:text="Siguiente paquete"
+            android:textColor="#FFFFFF"
+            android:background="@drawable/botones"
+            android:drawableTint="@android:color/background_light"
+            android:onClick="siguiente"
+            />
+        <Button
+            android:id="@+id/guardar"
+            android:layout_width="match_parent"
+            android:layout_height="35dp"
+            android:layout_margin="10dp"
+            android:textSize="10dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
+            android:text="Finalizar Entrega"
+            android:textColor="#FFFFFF"
+            android:background="@drawable/botones"
+            android:drawableTint="@android:color/background_light"
+            android:onClick="firma"
+            />
+
+        <RelativeLayout
+            android:id="@+id/loadingPanel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center" >
+
+            <ProgressBar
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:indeterminate="true" />
+        </RelativeLayout>
+
+
+
+    </LinearLayout>
+
+
+</RelativeLayout>
