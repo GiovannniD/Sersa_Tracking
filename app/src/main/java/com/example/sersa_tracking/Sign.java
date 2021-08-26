@@ -193,7 +193,7 @@ private void guardarPendientes(String json){
                                 // For the example, you can show an error dialog or a toast
                                 // on the main UI thread
                                 findViewById(R.id.loadingPanel).setVisibility(View.GONE);
-                                Toast.makeText(getApplicationContext(), "Vuelva a intentarlo, " + e.getMessage(), Toast.LENGTH_LONG).show();
+                               // Toast.makeText(getApplicationContext(), "Vuelva a intentarlo, " + e.getMessage(), Toast.LENGTH_LONG).show();
                                 guardar.setEnabled(true);
                                 guardarPendientes(json);
 
