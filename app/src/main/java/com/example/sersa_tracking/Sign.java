@@ -195,7 +195,7 @@ private void guardarPendientes(String json){
                                 findViewById(R.id.loadingPanel).setVisibility(View.GONE);
                                 Toast.makeText(getApplicationContext(), "Vuelva a intentarlo, " + e.getMessage(), Toast.LENGTH_LONG).show();
                                 guardar.setEnabled(true);
-
+                                guardarPendientes(json);
 
                             }
                         });

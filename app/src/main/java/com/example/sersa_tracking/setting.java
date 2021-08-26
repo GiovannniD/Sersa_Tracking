@@ -24,7 +24,7 @@ public class setting {
     public Map<String, String>  tempSavePackage = new HashMap<String, String>();
     public String Link()
     {
-        return "192.168.0.7:5001";
+        return "186.1.41.92:10000";
     }
 
     String postwith(String url, String json) throws IOException {

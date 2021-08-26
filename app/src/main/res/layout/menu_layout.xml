@@ -11,7 +11,7 @@
     <ImageView
         android:layout_width="match_parent"
         android:layout_height="140dp"
-        android:src="@drawable/banner_truck"
+        android:src="@drawable/logo_ser_3"
         android:id="@+id/banner"
         tools:ignore="MissingConstraints" />
 
