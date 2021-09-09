@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.text.Editable;
@@ -52,11 +53,12 @@ public class entrega_paquete extends AppCompatActivity {
     public static final MediaType JSON = MediaType.get("application/json; charset=utf-8");
     SharedPreferences settings;
     OkHttpClient client = new OkHttpClient();
-    String data []={"Entregado","Rechazado"};
+    String data []={"Entregado","Rechazado","Cerrado","Direccion no Localizada"};
     String estado,codigo_paquete;
     Gson gson=new Gson();
     Button guardar;
     String paquetes="";
+    int insertar=0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -127,19 +129,48 @@ public class entrega_paquete extends AppCompatActivity {
     }
 
 public void firma(View view) {
+    switch(insertar)
+    {
+        // declaración case
+        // los valores deben ser del mismo tipo de la expresión
+        case 3 :
 
-if(identificacion.getText().toString()!="" || recibido.getText().toString()!="")
-{
+        case 4 :
+            if(identificacion.getText().toString()!="" || recibido.getText().toString()!="")
+            {
 
-    Intent intent = new Intent(entrega_paquete.this, Sign.class);
-    intent.putExtra("paquetes",paquetes);
-    intent.putExtra("comentarios",comentarios.getText().toString());
-    intent.putExtra("identificacion",identificacion.getText().toString());
-    intent.putExtra("recibido",recibido.getText().toString());
-    startActivityForResult(intent,1);
-}else{
-    Toast.makeText(getApplicationContext(), "debe rellenar los campos identificacion o la persona que recibe el paquete!" , Toast.LENGTH_LONG).show();
-}
+                Intent intent = new Intent(entrega_paquete.this, Sign.class);
+                intent.putExtra("paquetes",paquetes);
+                intent.putExtra("comentarios",comentarios.getText().toString());
+                intent.putExtra("identificacion",identificacion.getText().toString());
+                intent.putExtra("recibido",recibido.getText().toString());
+                startActivityForResult(intent,1);
+            }else{
+                Toast.makeText(getApplicationContext(), "debe rellenar los campos identificacion o la persona que recibe el paquete!" , Toast.LENGTH_LONG).show();
+            }
+            break; // break es opcional
+        case 8 :
+        case 9 :
+            if(isNetworkConnected()==true) {
+                try {
+                    postwithParameters("http://" + setting.Link() + "/api/kontrolaVehicles/getVehiclesCoordinates/id", EntregaPaqueteJson());
+
+                } catch (IOException e) {
+                    //Toast.makeText(getApplicationContext(), "Vuelva a intentarlo, " + e.getMessage(), Toast.LENGTH_LONG).show();
+                    guardarPendientes(EntregaPaqueteJson());
+                 //   guardar.setEnabled(true);
+                }
+            }else{
+                guardarPendientes(EntregaPaqueteJson());
+            }
+            break;
+
+        default :
+            // Declaraciones
+    }
+
+
+
 
  /*if(estado=="Rechazado") {
      guardar.setEnabled(false);
@@ -169,37 +200,26 @@ if(identificacion.getText().toString()!="" || recibido.getText().toString()!="")
     //Toast.makeText(getApplicationContext(),paquetes, Toast.LENGTH_LONG).show();
     }
 
-    /*String postwith(String url, String json) throws IOException {
-        RequestBody body = RequestBody.create(json, JSON);
-        Request request = new Request.Builder()
-                .url(url)
-                .post(body)
-                .build();
-
-
-        try (Response response = client.newCall(request).execute()) {
-            return response.body().string();
-        }
-    }*/
-
-    String bowlingJson(String keyRuta,String noPlaca, String estado,String codigo_paquete,String comentarios,
-                       String recibido,
-                       String identificacion) {
+    String EntregaPaqueteJson() {
 
         return "{'vehicleCoordinatesPackages':" +
-                "[{" +
-                "'noPlaca':'"+noPlaca+"',"
-                + "'imei':'868718052609110',"
-                + "'keyRuta':'"+keyRuta+"',"
-                + "'keyEstadoPaquete':'"+estado+"',"
-                + "'codigoPaquete':'10309182',"
-                + "}]," +
+                "[" +
+                paquetes
+                + "]," +
                 "'firma':''," +
-                "'comentarios':'"+comentarios+"'," +
-                "'recibidoPor':'"+recibido+"'," +
-                "'identificacion':'"+identificacion+"'" +
+                "'comentarios':'"+comentarios.getText().toString()+"'," +
+                "'recibidoPor':''," +
+                "'identificacion':''" +
                 "}";
     }
+
+    private boolean isNetworkConnected() {
+        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        return cm.getActiveNetworkInfo() != null && cm.getActiveNetworkInfo().isConnected();
+    }
+
+
 
     private String CurrentTime()
     {
@@ -231,18 +251,8 @@ if(identificacion.getText().toString()!="" || recibido.getText().toString()!="")
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                // For the example, you can show an error dialog or a toast
-                                // on the main UI thread
-                                findViewById(R.id.loadingPanel).setVisibility(View.GONE);
-                                Toast.makeText(getApplicationContext(), "Vuelva a intentarlo, " + e.getMessage(), Toast.LENGTH_LONG).show();
-                                guardar.setEnabled(true);
 
-                                setting.tempSavePackage.put(codigo_paquete,json);
-                                settings.edit().putString("paquete_pendientes",gson.toJson(setting.tempSavePackage)).apply();
-                                findViewById(R.id.loadingPanel).setVisibility(View.GONE);
-                                setResult(1);
-                                finish();
-
+                                guardarPendientes(json);
 
                             }
                         });
@@ -251,13 +261,10 @@ if(identificacion.getText().toString()!="" || recibido.getText().toString()!="")
                     @Override
                     public void onResponse(Call call, final Response response) throws IOException {
                         String res = response.body().string();
-                        //   findViewById(R.id.loadingPanel).setVisibility(View.GONE);
+
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                // For the example, you can show an error dialog or a toast
-                                // on the main UI thread
-                                findViewById(R.id.loadingPanel).setVisibility(View.GONE);
                                 setResult(1);
                                 finish();
 
@@ -267,6 +274,24 @@ if(identificacion.getText().toString()!="" || recibido.getText().toString()!="")
                     }
                 });
     }
+                    private void guardarPendientes(String json){
+                        if( settings.getString("paquete_pendientes","")!=""){
+
+                            try {
+                                JSONObject obj = new JSONObject(settings.getString("paquete_pendientes",""));
+                                setting.tempSavePackage=setting.JsonToMapString(obj);
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                        String key = String.valueOf(setting.tempSavePackage.size()+1);
+                        setting.tempSavePackage.put(key,json);
+                        settings.edit().putString("paquete_pendientes",gson.toJson(setting.tempSavePackage)).apply();
+                      //  findViewById(R.id.loadingPanel).setVisibility(View.GONE);
+                        setResult(1);
+                        finish();
+                    }
+
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -285,19 +310,17 @@ if(identificacion.getText().toString()!="" || recibido.getText().toString()!="")
     }
 
     public void siguiente(View view) {
-        int insertar=0;
+
         if(Cpaquete.getText().toString()!=""){
         if(estado=="Rechazado") {
             insertar=4;
-        }else  {
+        }else if(estado=="Entregado")  {
             insertar=3;
+        }else if(estado=="Cerrado")  {
+            insertar=8  ;
+        }else if(estado=="Direccion no Localizada")  {
+            insertar=9  ;
         }
-    /*  paquetes+="'{noPlaca':'"+settings.getString("noPlaca", "")+"',"
-                + "'imei':'868718052609110',"
-                + "'keyRuta':'"+settings.getString("keyRuta", "")+"',"
-                + "'keyEstadoPaquete':'"+ insertar+"',"
-                + "'codigoPaquete':'"+Cpaquete.getText().toString()+"'"
-                + "},";*/
             paquetes+=" {\n" +
                     "            \"noPlaca\": \""+settings.getString("noPlaca", "")+"\",\n" +
                     "            \"imei\": \"868718052609110\",\n" +
@@ -305,11 +328,13 @@ if(identificacion.getText().toString()!="" || recibido.getText().toString()!="")
                     "            \"keyEstadoPaquete\": "+insertar+",\n" +
                     "            \"codigoPaquete\": \""+Cpaquete.getText().toString()+"\"            \n" +
                     "        },";
-        identificacion.setEnabled(false);
-        recibido.setEnabled(false);
+            identificacion.setEnabled(false);
+            recibido.setEnabled(false);
             Cpaquete.setText("");
-        Cpaquete.requestFocus();
-        guardar.setEnabled(true);
+            Cpaquete.requestFocus();
+            guardar.setEnabled(true);
+
+
         }else{
             Toast.makeText(getApplicationContext(),"El código del paquete no puede estar vacío!", Toast.LENGTH_LONG).show();
             Cpaquete.requestFocus();
