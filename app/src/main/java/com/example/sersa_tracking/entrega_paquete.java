@@ -7,6 +7,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
+import android.media.SoundPool;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.os.StrictMode;
@@ -50,6 +53,7 @@ public class entrega_paquete extends AppCompatActivity {
     setting setting= new setting();
     EditText comentarios,identificacion,recibido,Cpaquete;
     String date;
+    TextView conteo;
     public static final MediaType JSON = MediaType.get("application/json; charset=utf-8");
     SharedPreferences settings;
     OkHttpClient client = new OkHttpClient();
@@ -59,7 +63,12 @@ public class entrega_paquete extends AppCompatActivity {
     Button guardar;
     String paquetes="";
     int insertar=0;
-
+    int control=0;
+    public MediaPlayer mp,mp2;
+    public SoundPool sp;
+    public SoundPool sp2;
+    public int flujodemusica=0;
+    public int flujodemusica2=0;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         setTheme(R.style.AppTheme);
@@ -69,6 +78,7 @@ public class entrega_paquete extends AppCompatActivity {
         identificacion = (EditText) findViewById(R.id.identificacion);
         recibido = (EditText) findViewById(R.id.recibido);
         Cpaquete = (EditText) findViewById(R.id.paquete);
+        conteo = (TextView) findViewById(R.id.conteo);
         guardar = (Button) findViewById(R.id.guardar);
 
         setTitle(getIntent().getStringExtra("codigo_paquete"));
@@ -77,7 +87,12 @@ public class entrega_paquete extends AppCompatActivity {
         int SDK_INT = android.os.Build.VERSION.SDK_INT;
         findViewById(R.id.loadingPanel).setVisibility(View.GONE);
         guardar.setEnabled(false);
-
+        mp= MediaPlayer.create(this, R.raw.error);
+       // mp2= MediaPlayer.create(this, R.raw.alerta2);
+        sp = new SoundPool(8, AudioManager.STREAM_MUSIC, 0);
+        this.setVolumeControlStream(AudioManager.STREAM_MUSIC);
+        flujodemusica= sp.load(this,R.raw.error,1);
+      //  flujodemusica2= sp.load(this,R.raw.alerta2,1);
 
         identificacion.addTextChangedListener(new TextWatcher() {
 
@@ -309,35 +324,47 @@ public void firma(View view) {
 
     }
 
+    public void play_sp1() {
+// TODO Auto-generated method stub
+        sp.play(flujodemusica, 1, 1, 0, 0, 1);
+    }
     public void siguiente(View view) {
+        if (Cpaquete.getText().toString().trim().length()>=8) {
+        if (!Cpaquete.getText().toString().trim().isEmpty()) {
+            if (estado == "Rechazado") {
+                insertar = 4;
+            } else if (estado == "Entregado") {
+                insertar = 3;
+            } else if (estado == "Cerrado") {
+                insertar = 8;
+            } else if (estado == "Direccion no Localizada") {
+                insertar = 9;
+            }
 
-        if(Cpaquete.getText().toString()!=""){
-        if(estado=="Rechazado") {
-            insertar=4;
-        }else if(estado=="Entregado")  {
-            insertar=3;
-        }else if(estado=="Cerrado")  {
-            insertar=8  ;
-        }else if(estado=="Direccion no Localizada")  {
-            insertar=9  ;
-        }
-            paquetes+=" {\n" +
-                    "            \"noPlaca\": \""+settings.getString("noPlaca", "")+"\",\n" +
+            paquetes += " {\n" +
+                    "            \"noPlaca\": \"" + settings.getString("noPlaca", "") + "\",\n" +
                     "            \"imei\": \"868718052609110\",\n" +
-                    "            \"keyRuta\": "+settings.getString("keyRuta", "")+",          \n" +
-                    "            \"keyEstadoPaquete\": "+insertar+",\n" +
-                    "            \"codigoPaquete\": \""+Cpaquete.getText().toString()+"\"            \n" +
+                    "            \"keyRuta\": " + settings.getString("keyRuta", "") + ",          \n" +
+                    "            \"keyEstadoPaquete\": " + insertar + ",\n" +
+                    "            \"codigoPaquete\": \"" + Cpaquete.getText().toString().trim() + "\"            \n" +
                     "        },";
             identificacion.setEnabled(false);
             recibido.setEnabled(false);
             Cpaquete.setText("");
             Cpaquete.requestFocus();
             guardar.setEnabled(true);
+            control++;
+            conteo.setText(""+control);
 
-
-        }else{
-            Toast.makeText(getApplicationContext(),"El código del paquete no puede estar vacío!", Toast.LENGTH_LONG).show();
+        } else {
+            Toast.makeText(getApplicationContext(), "El código del paquete no puede estar vacío!", Toast.LENGTH_LONG).show();
             Cpaquete.requestFocus();
+        }
+    }
+        else {
+            Toast.makeText(getApplicationContext(), "El código del paquete no puede estar vacío!", Toast.LENGTH_SHORT).show();
+            Cpaquete.requestFocus();
+            play_sp1();
         }
      //   Toast.makeText(getApplicationContext(),paquetes, Toast.LENGTH_LONG).show();
     }
