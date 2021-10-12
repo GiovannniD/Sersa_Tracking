@@ -354,7 +354,7 @@ public void firma(View view) {
                 insertar = 9;
             }
 
-  if(setting.tempSaveCode.get(Cpaquete.getText().toString().trim())==null)
+  if(setting.tempSaveCode.get(Cpaquete.getText().toString().trim())==null && setting.tempSaveCode.size()>0)
   {
       play_sp2();
       Toast.makeText(getApplicationContext(),"Paquete no valido!", Toast.LENGTH_LONG).show();
