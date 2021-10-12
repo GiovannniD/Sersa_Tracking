@@ -38,6 +38,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.Call;
@@ -88,11 +89,18 @@ public class entrega_paquete extends AppCompatActivity {
         findViewById(R.id.loadingPanel).setVisibility(View.GONE);
         guardar.setEnabled(false);
         mp= MediaPlayer.create(this, R.raw.error);
-       // mp2= MediaPlayer.create(this, R.raw.alerta2);
+        mp2= MediaPlayer.create(this, R.raw.alerta1);
         sp = new SoundPool(8, AudioManager.STREAM_MUSIC, 0);
         this.setVolumeControlStream(AudioManager.STREAM_MUSIC);
         flujodemusica= sp.load(this,R.raw.error,1);
-      //  flujodemusica2= sp.load(this,R.raw.alerta2,1);
+        flujodemusica2= sp.load(this,R.raw.alerta1,1);
+
+        try {
+            JSONObject obj  = new JSONObject(settings.getString("tempSaveCode",""));
+            setting.tempSaveCode=setting.JsonToMapString(obj);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
 
         identificacion.addTextChangedListener(new TextWatcher() {
 
@@ -328,6 +336,11 @@ public void firma(View view) {
 // TODO Auto-generated method stub
         sp.play(flujodemusica, 1, 1, 0, 0, 1);
     }
+
+    public void play_sp2() {
+// TODO Auto-generated method stub
+        sp.play(flujodemusica2, 1, 1, 0, 0, 1);
+    }
     public void siguiente(View view) {
         if (Cpaquete.getText().toString().trim().length()>=8) {
         if (!Cpaquete.getText().toString().trim().isEmpty()) {
@@ -341,6 +354,19 @@ public void firma(View view) {
                 insertar = 9;
             }
 
+  if(setting.tempSaveCode.get(Cpaquete.getText().toString().trim())==null)
+  {
+      play_sp2();
+      Toast.makeText(getApplicationContext(),"Paquete no valido!", Toast.LENGTH_LONG).show();
+      return;
+  }
+  if(setting.tempSaveScannedCode.get(Cpaquete.getText().toString().trim())!=null)
+            {
+                play_sp2();
+                Toast.makeText(getApplicationContext(),"Este paquete ya fue escaneado", Toast.LENGTH_LONG).show();
+                return;
+            }
+            //Toast.makeText(getApplicationContext(),setting.tempSaveScannedCode.get(Cpaquete.getText().toString().trim()), Toast.LENGTH_LONG).show();
             paquetes += " {\n" +
                     "            \"noPlaca\": \"" + settings.getString("noPlaca", "") + "\",\n" +
                     "            \"imei\": \"868718052609110\",\n" +
@@ -348,12 +374,15 @@ public void firma(View view) {
                     "            \"keyEstadoPaquete\": " + insertar + ",\n" +
                     "            \"codigoPaquete\": \"" + Cpaquete.getText().toString().trim() + "\"            \n" +
                     "        },";
+            setting.tempSaveScannedCode.put(Cpaquete.getText().toString().trim(),Cpaquete.getText().toString().trim());
             identificacion.setEnabled(false);
             recibido.setEnabled(false);
             Cpaquete.setText("");
             Cpaquete.requestFocus();
             guardar.setEnabled(true);
             control++;
+
+
             conteo.setText(""+control);
 
         } else {

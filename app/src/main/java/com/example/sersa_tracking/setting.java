@@ -22,12 +22,16 @@ public class setting {
     public static final MediaType JSON = MediaType.get("application/json; charset=utf-8");
     OkHttpClient client = new OkHttpClient();
     public Map<String, String>  tempSavePackage = new HashMap<String, String>();
+    public  Map<String, String>  tempSaveCode = new HashMap<String, String>();
+    public Map<String, String>  tempSaveScannedCode = new HashMap<String, String>();
     public String Link()
     {
         return "186.1.41.92:10000";
     }
 
-    String postwith(String url, String json) throws IOException {
+
+
+  public  String postwith(String url, String json) throws IOException {
         RequestBody body = RequestBody.create(json, JSON);
         client = new OkHttpClient.Builder()
                 .connectTimeout(120, TimeUnit.SECONDS)

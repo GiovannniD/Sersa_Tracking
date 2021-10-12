@@ -62,6 +62,7 @@ public class MainActivity extends AppCompatActivity {
     String date;
     String countryList[] = {"India", "China", "australia", "Portugle", "America", "NewZealand"};
     RequestBody body;
+    RequestBody bodyValidacion;
     Gson gson = new Gson();
     ArrayList<String> KeyOrden= new ArrayList<String>();
     ArrayList<String> Cliente= new ArrayList<String>();
@@ -134,8 +135,9 @@ public class MainActivity extends AppCompatActivity {
                         .setAction("Action", null).show();
             }
         });*/
-
-
+        if(settings.getString("tempSaveCode","") !="") {
+            fillValidacion();
+        }
 
     }
 private void Paquetes_Pendientes() throws JSONException, IOException {
@@ -158,6 +160,20 @@ private void Paquetes_Pendientes() throws JSONException, IOException {
         }
     }else{
         Toast.makeText(getApplicationContext(), "No hay paquetes pendientes " , Toast.LENGTH_LONG).show();
+    }
+}
+private void fillValidacion(){
+    String json =validacion(settings.getString("keyRuta",""), settings.getString("keyVehiculo",""),settings.getString("FechaActual",""));
+    bodyValidacion = RequestBody.create(json, JSON);
+    try {
+
+        ;
+       postwithValidacion("http://"+setting.Link()+"/api/AppMobile/ValidacionPaquetes", json);
+
+
+    } catch (IOException e) {
+        e.printStackTrace();
+        Toast.makeText(getApplicationContext(), "Vuelva a intentarlo, " + e.getMessage(), Toast.LENGTH_LONG).show();
     }
 }
     void post(String url, String json,String key) throws IOException{
@@ -301,6 +317,81 @@ private void Paquetes_Pendientes() throws JSONException, IOException {
                 });
     }
 
+    void postwithValidacion(String url, String json) throws IOException{
+
+        OkHttpClient client = new OkHttpClient.Builder()
+                .connectTimeout(120, TimeUnit.SECONDS)
+                .readTimeout(120,TimeUnit.SECONDS)
+
+                .build();
+        Request request = new Request.Builder()
+                .url(url)
+                .post(bodyValidacion)
+                .build();
+
+        client.newCall(request)
+                .enqueue(new Callback() {
+                    @Override
+                    public void onFailure(final Call call, IOException e) {
+                        // Error
+
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                // For the example, you can show an error dialog or a toast
+                                // on the main UI thread
+
+                                Log.d("OnFailure",e.getMessage());
+                                Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void onResponse(Call call, final Response response) throws IOException {
+                        String res = response.body().string();
+                        //   findViewById(R.id.loadingPanel).setVisibility(View.GONE);
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+
+
+                                try {
+                                    JSONArray  arr = new JSONArray(res);
+                                  //  Toast.makeText(getApplicationContext(), res, Toast.LENGTH_SHORT).show();
+                                    for (int i = 0; i < arr.length(); i++)
+                                    {
+                                        JSONObject e = arr.getJSONObject(i);
+                                        setting.tempSaveCode.put(e.getString("codigo"),""+i);
+                                       //Toast.makeText(getApplicationContext(), e.getString("codigo"), Toast.LENGTH_SHORT).show();
+
+                                    }
+                        Gson gson =new Gson();
+                                    settings.edit().putString("tempSaveCode",gson.toJson(setting.tempSaveCode)).apply();
+                                  //  Toast.makeText(getApplicationContext(),  gson.toJson(setting.tempSaveCode), Toast.LENGTH_SHORT).show();
+
+                                    //   response();
+                                    // Log.d("JASON",res);
+
+
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                    Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+                                }
+
+
+                            }
+                        });
+
+
+
+
+                        // Do something with the response
+                    }
+                });
+    }
+
     String bowlingJson(String keyRuta, String keyVehiculo,String Fecha,int caso) {
         String res="";
       /*  return "{'winCondition':'HIGH_SCORE',"
@@ -328,6 +419,16 @@ if(caso==1)
                 + "}";
     }
 return res;
+    }
+
+    private String validacion(String KeyRuta,String KeyVehiculo,String AperturaRuta){
+        return "{\n" +
+                "    \"Codigo\":\"\",\n" +
+                "    \"KeyVehiculo\":"+KeyVehiculo+",\n" +
+                "    \"KeyRuta\":"+KeyRuta+",\n" +
+                "    \"KeyEstado\":0,\n" +
+                "    \"AperturaRuta\":\""+AperturaRuta+"\"\n" +
+                "}";
     }
     private String CurrentTime()
     {
