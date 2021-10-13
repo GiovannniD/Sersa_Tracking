@@ -135,7 +135,8 @@ public class MainActivity extends AppCompatActivity {
                         .setAction("Action", null).show();
             }
         });*/
-        if(settings.getString("tempSaveCode","") !="") {
+
+        if(settings.getString("tempSaveCode","") =="") {
             fillValidacion();
         }
 
@@ -359,12 +360,12 @@ private void fillValidacion(){
 
                                 try {
                                     JSONArray  arr = new JSONArray(res);
-                                  //  Toast.makeText(getApplicationContext(), res, Toast.LENGTH_SHORT).show();
+                                 //  Toast.makeText(getApplicationContext(), res, Toast.LENGTH_SHORT).show();
                                     for (int i = 0; i < arr.length(); i++)
                                     {
                                         JSONObject e = arr.getJSONObject(i);
                                         setting.tempSaveCode.put(e.getString("codigo"),""+i);
-                                       //Toast.makeText(getApplicationContext(), e.getString("codigo"), Toast.LENGTH_SHORT).show();
+                                      // Toast.makeText(getApplicationContext(), e.getString("codigo"), Toast.LENGTH_SHORT).show();
 
                                     }
                         Gson gson =new Gson();
